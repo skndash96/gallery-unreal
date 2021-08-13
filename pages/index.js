@@ -6,6 +6,7 @@ import { provider, auth, db, bucket } from '../firebase'
 import { media } from '../util/style'
 import { FcGoogle } from 'react-icons/fc'
 import { VscLoading } from 'react-icons/vsc'
+import ImagesGrid from '../components/imagesGrid'
 
 export default function Index() {
   const [user, setUser] = useState(null)
@@ -14,16 +15,6 @@ export default function Index() {
   const [formIsActive, setFormIsActive] = useState(true)
   const [uploadProgress, setUploadProgress] = useState([])
   const [errors, setErrors] = useState([])
-  const [screenWidth, setScreenWidth] = useState(null)
-  
-  
-  //Change screenWidth
-  useEffect(() => {
-    window.addEventListener('resize', () => setScreenWidth(window.screen.width))
-    
-    setScreenWidth(window.screen.width)
-  }, [])
-  
   
   useEffect(() => {
     if (!user) return
@@ -32,7 +23,6 @@ export default function Index() {
       images: images
     }, { merge: true })
   }, [images.length])
-  
   
   //Listen for auths
   useEffect(() => {
@@ -66,9 +56,6 @@ export default function Index() {
       })
     })
   }, [])
-  
-  
-  const isMediumScreen = () => screenWidth >= 640
   
   const addImages = async () => {
     await Promise.all(
@@ -137,48 +124,7 @@ export default function Index() {
       <VscLoading />
     </LoadingScreen>
     
-    <ImagesGrid onClick={(e) => user ? null : handleLogin(e)}>{
-      isMediumScreen()
-      ? [
-        <ImagesCol width={'33vw'} key={3}>
-          {images.slice(2*images.length/3).map(image => {
-            return (
-              <img src={image} />
-            )
-          })}
-        </ImagesCol>,
-        <ImagesCol width={'33vw'} key={1}>
-          {images.slice(0, images.length/3).map(image => {
-             return (
-              <img src={image} />
-            )
-          })}
-        </ImagesCol>,
-        <ImagesCol width={'33vw'} key={2}>
-          {images.slice(images.length/3, 2*images.length/3).map(image => {
-            return (
-              <img src={image} />
-            )
-          })}
-        </ImagesCol>
-      ]
-      : [
-        <ImagesCol key={2}>
-          {images.slice(images.length/2).map(image => {
-            return (
-              <img src={image} />
-            )
-          })}
-        </ImagesCol>,
-        <ImagesCol key={1}>
-          {images.slice(0, images.length/2).map(image => {
-            return (
-              <img src={image} />
-            )
-          })}
-        </ImagesCol>
-      ]
-    }</ImagesGrid>
+    <ImagesGrid images={images} onClick={(e) => user ? null : handleLogin(e)}/>
     
     <AddImageContainer hideInput={formIsActive} validInput={toAddImages.length ? true : false}>
       
@@ -188,7 +134,10 @@ export default function Index() {
       
       <div>
         {user
-        ? <input id='addImageInput' onChange={({ target }) => setToAddImages(Array.from(target.files).filter(x => x.name))} type='file' accept='.png,.jpeg,.jpg,.svg,.webp' multiple />
+        ? <>
+            <input id='addImageInput' onChange={({ target }) => setToAddImages(Array.from(target.files).filter(x => x.name))} type='file' accept='.png,.jpeg,.jpg,.svg,.webp' multiple />
+            <label id='addImageLabel'> {toAddImages.length ? `${toAddImages.length} images` : 'Browse files'} </label>
+          </>
         : <button onClick={handleLogin}>
           <FcGoogle />
           Continue with Google
@@ -224,26 +173,6 @@ const LoadingScreen = styled.div`
   }
 `
 
-const ImagesGrid = styled.div`
-  position: relative;
-  width: 100%;
-  min-height: 100vh;
-  background-color: #111;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(33vw, 1fr));
-`
-const ImagesCol = styled.div`
-  position: relative;
-  max-width: ${props => props.width};
-  display: flex;
-  flex-direction: column;
-  & img {
-    margin: 0.5rem;
-    border-radius: 0.5rem;
-    background-color: black;
-  }
-`
-
 const AddImageContainer = styled.div`
   position: fixed;
   bottom: 0;
@@ -254,12 +183,28 @@ const AddImageContainer = styled.div`
   color: white;
   
   & div {
-    max-width: 50%;
+    & input {
+      opacity: 0;
+    }
+    & label {
+      font-size: 0.75rem;
+      padding: 0.2rem;
+      background-color: #f5f2be;
+      color: #d54a4a;
+      box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+      border-radius: 10px;
+      display: block;
+      width: 35vw;
+      text-align: center;
+      position: absolute;
+      bottom: 0.75rem;
+      left: 1rem;
+      z-index: -1;
+    }
     & button {
       padding: 0.2rem 0.5rem;
       border: none;
       border-radius: 10px;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
     }
     & svg {
       transform: translateY(2px);
@@ -289,6 +234,9 @@ const AddImageContainer = styled.div`
     };
     color: ${props => props.hideInput ? '#d54a4a' : '#fff'};
     box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+    & svg {
+      font-size: 1.25rem;
+    }
   }
 `
 
