@@ -6,7 +6,6 @@ import { provider, auth, db, bucket } from '../firebase'
 import { media } from '../util/style'
 import { FcGoogle } from 'react-icons/fc'
 import { VscLoading } from 'react-icons/vsc'
-import Image from 'next/image'
 
 export default function Index() {
   const [user, setUser] = useState(null)
@@ -17,29 +16,6 @@ export default function Index() {
   const [errors, setErrors] = useState([])
   const [screenWidth, setScreenWidth] = useState(null)
   
-  //Listen for auths
-  useEffect(() => {
-    auth.onAuthStateChanged(user => {
-      if (!user) return
-      
-      db.collection('users').doc(user.uid).get()
-      .then(doc => {
-        const data = doc.data()
-        
-        if (data) {
-          setUser(user)
-          setImages(images => [...data.images])
-        } else {
-          db.collection('users').doc(user.uid).set({
-            images: images
-          })
-        }
-      })
-      .catch(error => {
-        console.error(error)
-      })
-    })
-  })
   
   //Change screenWidth
   useEffect(() => {
@@ -47,6 +23,50 @@ export default function Index() {
     
     setScreenWidth(window.screen.width)
   }, [])
+  
+  
+  useEffect(() => {
+    if (!user) return
+    
+    db.collection('users').doc(user.uid).set({
+      images: images
+    }, { merge: true })
+  }, [images.length])
+  
+  
+  //Listen for auths
+  useEffect(() => {
+    auth.onAuthStateChanged(user => {
+      if (!user) {
+        setImages(['https://firebasestorage.googleapis.com/v0/b/gallery-app-96.appspot.com/o/CejU0o6NfzRKjoGhk4NaJwLXRhs2%2FloginToContinue.jpg?alt=media&token=41540630-437b-4080-9a74-e630803f26b3', 'https://firebasestorage.googleapis.com/v0/b/gallery-app-96.appspot.com/o/CejU0o6NfzRKjoGhk4NaJwLXRhs2%2FloginToContinue.jpg?alt=media&token=41540630-437b-4080-9a74-e630803f26b3']) //Default LoginToContinue images..
+        return
+      } else {
+        setUser(user)
+      }
+      
+      db.collection('users').doc(user.uid).get()
+      .then(doc => {
+        const data = doc.data()
+        
+        if (data) {
+          setImages(data.images)
+        } else {
+          setImages([])
+          
+          db.collection('users').doc(user.uid).set({
+            images: []
+          })
+          .catch(error => {
+            console.error(error)
+          })
+        }
+      })
+      .catch(error => {
+        console.error(error)
+      })
+    })
+  }, [])
+  
   
   const isMediumScreen = () => screenWidth >= 640
   
@@ -56,7 +76,7 @@ export default function Index() {
         if (image.size > 5 * 1024 * 1024) return setErrors(array => [...array, 'File size greater than 5mb - ' + image.name])
         
           return await new Promise((resolve, reject) => {
-          const destination = `testuserid/${image.name}`
+          const destination = `${user.uid}/${image.name}`
           
           const uploadTask = bucket.ref().child(destination).put(image)
           
@@ -74,9 +94,7 @@ export default function Index() {
               bucket.ref().child(destination).getDownloadURL()
               .then(url => {
                 setUploadProgress(count => [(count[0]||0)+1, array.length])
-                
-                setImages(array => [...array, url])
-                
+                setImages(state => [...state, url])
                 resolve()
               })
               .catch(error => {
@@ -88,17 +106,13 @@ export default function Index() {
       })
     )
     
-    db.collection('users').doc(user.uid).set({
-      images: images
-    }, { merge: true })
-    
     document.querySelector('#addImageInput').value = ''
-    setUploadProgress([])
     setToAddImages([])
     setUploadProgress([])
   }
   
   const handleLogin = (event) => {
+    event.stopPropagation()
     event.preventDefault()
 
     auth.signInWithPopup(provider)
@@ -123,9 +137,16 @@ export default function Index() {
       <VscLoading />
     </LoadingScreen>
     
-    <ImagesGrid>{
+    <ImagesGrid onClick={(e) => user ? null : handleLogin(e)}>{
       isMediumScreen()
       ? [
+        <ImagesCol width={'33vw'} key={3}>
+          {images.slice(2*images.length/3).map(image => {
+            return (
+              <img src={image} />
+            )
+          })}
+        </ImagesCol>,
         <ImagesCol width={'33vw'} key={1}>
           {images.slice(0, images.length/3).map(image => {
              return (
@@ -139,25 +160,18 @@ export default function Index() {
               <img src={image} />
             )
           })}
-        </ImagesCol>,
-        <ImagesCol width={'33vw'} key={3}>
-          {images.slice(2*images.length/3).map(image => {
-            return (
-              <img src={image} />
-            )
-          })}
         </ImagesCol>
       ]
       : [
-        <ImagesCol key={1}>
-          {images.slice(0, images.length/2).map(image => {
+        <ImagesCol key={2}>
+          {images.slice(images.length/2).map(image => {
             return (
               <img src={image} />
             )
           })}
         </ImagesCol>,
-        <ImagesCol key={2}>
-          {images.slice(images.length/2).map(image => {
+        <ImagesCol key={1}>
+          {images.slice(0, images.length/2).map(image => {
             return (
               <img src={image} />
             )
@@ -255,7 +269,6 @@ const AddImageContainer = styled.div`
   
   & > * {
     display: ${props => props.hideInput ? 'none' : 'block'};
-    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
   }
   
   & #addImageButton {
