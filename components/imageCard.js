@@ -19,15 +19,10 @@ const Card = styled.div`
   & img {
     border-radius: 0.5rem;
     max-width: 100%;
-    &:hover {
-      opacity: 0.5;
-    }
-    &:hover + div {
-      display: grid;
-    }
   }
   & div {
-    display: none;
+    opacity: 0;
+    display: grid;
     position: absolute;
     top:0;
     width: 100%;
@@ -41,10 +36,10 @@ const Card = styled.div`
     }
   }
   .activeBin {
-    display: grid;
+    opacity: 1;
   }
   .redBin {
-    display: grid;
+    opacity: 1;
     color: #f22;
   }
 `

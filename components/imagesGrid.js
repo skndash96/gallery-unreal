@@ -9,6 +9,7 @@ export default function images() {
   const {user, images} = useSelector(state => state)
   
   const [screenWidth, setScreenWidth] = useState(null);
+  const [longPress, setLongPress] = useState(null)
   const [moving, setMoving] = useState(null);
   
   const getParams = (event) => {
@@ -48,33 +49,42 @@ export default function images() {
 
     const elems = document.elementsFromPoint(clientX, clientY);
     
-    if (elems[1].firstChild.src) setMoving(elems[1]);
-
+    if (elems[2]?.firstChild?.src) {
+      setLongPress(setTimeout(() => setMoving(elems[2]), 750))
+    }
+    
     return;
   };
 
   const handleMove = (event) => {
-    if (!moving) return
-    
-    const { isInBin } = getParams(event);
-
-    moving.querySelector("div").classList.remove("redBin", "activeBin");
-    moving.querySelector("div").classList.add(isInBin ? "redBin" : "activeBin");
-
-    return;
+    if (!moving) {
+      /*if (longPress) {
+        clearTimeout(longPress)
+        setLongPress(null)
+      }
+      setMoving(null)*/
+    } else {
+      const { isInBin } = getParams(event);
+  
+      moving.querySelector("div").classList.remove("redBin", "activeBin");
+      moving.querySelector("div").classList.add(isInBin ? "redBin" : "activeBin");
+    }
   };
 
   const handleDrop = (event) => {
-    if (!moving) return
-    
-    const { isInBin } = getParams(event);
-    
-    const imageURL = moving.querySelector("img").src
-    
-    if (isInBin) {
-      //TODO: delete from db
-      if (user) {
-        if (!window.confirm("Confirm Delete?")) return
+    if (!moving) {
+      if (longPress) {
+        clearTimeout(longPress)
+        setLongPress(null)
+      }
+      setMoving(null)
+    } else {
+      const { isInBin } = getParams(event);
+      
+      const imageURL = moving.querySelector("img").src
+      
+      if (isInBin && user) {
+        if (!window.confirm("Confirm Delete?")) return clearEffects()
         
         db.collection('users').doc(user.uid).get()
         .then(doc => {
@@ -103,13 +113,15 @@ export default function images() {
           console.error(error)
         })
       }
+      
+      function clearEffects() {
+        moving.querySelector("div").classList.remove("redBin", "activeBin");
+        setMoving(null);
+        setLongPress(null)
+      }
+      
+      clearEffects()
     }
-
-    moving.querySelector("div").classList.remove("redBin", "activeBin");
-
-    setMoving(null);
-
-    return;
   };
 
   useEffect(() => {
