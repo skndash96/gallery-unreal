@@ -10,9 +10,8 @@ import ImagesGrid from '../components/imagesGrid'
 
 export default function Index() {
   const dispatch = useDispatch()
-  const {user} = useSelector(state => state)
+  const {images, user} = useSelector(state => state)
   
-  const [images, setImages] = useState([])
   const [toAddImages, setToAddImages] = useState([])
   const [formIsActive, setFormIsActive] = useState(true)
   const [uploadProgress, setUploadProgress] = useState([])
@@ -30,8 +29,11 @@ export default function Index() {
   useEffect(() => {
     auth.onAuthStateChanged(user => {
       if (!user) {
-        setImages(['https://firebasestorage.googleapis.com/v0/b/gallery-app-96.appspot.com/o/CejU0o6NfzRKjoGhk4NaJwLXRhs2%2FloginToContinue.jpg?alt=media&token=41540630-437b-4080-9a74-e630803f26b3', 'https://firebasestorage.googleapis.com/v0/b/gallery-app-96.appspot.com/o/CejU0o6NfzRKjoGhk4NaJwLXRhs2%2FloginToContinue.jpg?alt=media&token=41540630-437b-4080-9a74-e630803f26b3'
-        ]) //Default LoginToContinue images..
+        dispatch({
+          type: 'SET_IMAGES',
+          payload: ['https://firebasestorage.googleapis.com/v0/b/gallery-app-96.appspot.com/o/CejU0o6NfzRKjoGhk4NaJwLXRhs2%2FloginToContinue.jpg?alt=media&token=41540630-437b-4080-9a74-e630803f26b3', 'https://firebasestorage.googleapis.com/v0/b/gallery-app-96.appspot.com/o/CejU0o6NfzRKjoGhk4NaJwLXRhs2%2FloginToContinue.jpg?alt=media&token=41540630-437b-4080-9a74-e630803f26b3'
+          ] //Default LoginToContinue images..
+        })
         return
       } else {
         dispatch({
@@ -45,9 +47,15 @@ export default function Index() {
         const data = doc.data()
         
         if (data) {
-          setImages(data.images)
+          dispatch({
+            type: 'SET_IMAGES',
+            payload: data.images
+          })
         } else {
-          setImages([])
+          dispatch({
+            type: 'SET_IMAGES',
+            payload: []
+          })
           
           db.collection('users').doc(user.uid).set({
             images: []
@@ -88,7 +96,10 @@ export default function Index() {
               .then(url => {
                 setUploadProgress(count => [(count[0]||0)+1, array.length])
                 
-                setImages(state => [...state, url])
+                dispatch({
+                  type: 'ADD_IMAGES',
+                  payload: [url]
+                })
                 
                 resolve()
               })
@@ -135,7 +146,7 @@ export default function Index() {
       <VscLoading />
     </LoadingScreen>
     
-    <ImagesGrid images={images} onClick={(e) => user ? null : handleLogin(e)}/>
+    <ImagesGrid onClick={(e) => user ? null : handleLogin(e)}/>
     
     <AddImageContainer hideInput={formIsActive} validInput={toAddImages.length ? true : false}>
       

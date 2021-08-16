@@ -2,10 +2,11 @@ import styled from "styled-components";
 import { useState, useEffect, useRef } from "react";
 import ImageCard from "./imageCard";
 import { bucket, db } from '../firebase'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 
-export default function images({ images }) {
-  const user = useSelector(state => state.user)
+export default function images() {
+  const dispatch = useDispatch()
+  const {user, images} = useSelector(state => state)
   
   const [screenWidth, setScreenWidth] = useState(null);
   const [moving, setMoving] = useState(null);
@@ -68,6 +69,8 @@ export default function images({ images }) {
     if (isInBin) {
       //TODO: delete from db
       if (user) {
+        if (!window.confirm("Confirm Delete?")) return
+        
         db.collection('users').doc(user.uid).get()
         .then(doc => {
           const images = doc.data().images.slice()
@@ -80,7 +83,12 @@ export default function images({ images }) {
             images: images
           }, { merge: true })
           .then(() => {
-            bucket.ref().child(`${user.uid}/${imageName}`)
+            bucket.ref().child(`${user.uid}/${imageName}`).delete().then(() => {
+              dispatch({
+                type: 'SET_IMAGES',
+                payload: images
+              })
+            })
           })
           .catch((error) => {
             console.error(error)
