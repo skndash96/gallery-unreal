@@ -16,9 +16,14 @@ export default function images() {
     event.preventDefault();
 
     let clientX, clientY;
-    clientX = event.changedTouches[0].clientX;
-    clientY = event.changedTouches[0].clientY;
-
+    if (!event.type.includes('mouse')) {
+      clientX = event.changedTouches[0].clientX;
+      clientY = event.changedTouches[0].clientY;
+    } else {
+      clientX = event.clientX
+      clientY = event.clientY
+    }
+    
     const { x, y, width, height } = moving?.getBoundingClientRect() || {};
     const maxX = x + width / 2 + 25;
     const maxY = y + height / 2 + 25;
@@ -120,6 +125,9 @@ export default function images() {
       onTouchStart={handlePick}
       onTouchMove={handleMove}
       onTouchEnd={handleDrop}
+      onMouseDown={handlePick}
+      onMouseMove={handleMove}
+      onMouseUp={handleDrop}
     >
       {isMediumScreen()
         ? [
