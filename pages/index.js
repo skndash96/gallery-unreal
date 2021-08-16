@@ -31,7 +31,7 @@ export default function Index() {
       if (!user) {
         dispatch({
           type: 'SET_IMAGES',
-          payload: ['https://firebasestorage.googleapis.com/v0/b/gallery-app-96.appspot.com/o/CejU0o6NfzRKjoGhk4NaJwLXRhs2%2FloginToContinue.jpg?alt=media&token=41540630-437b-4080-9a74-e630803f26b3', 'https://firebasestorage.googleapis.com/v0/b/gallery-app-96.appspot.com/o/CejU0o6NfzRKjoGhk4NaJwLXRhs2%2FloginToContinue.jpg?alt=media&token=41540630-437b-4080-9a74-e630803f26b3'
+          payload: ['https://firebasestorage.googleapis.com/v0/b/gallery-app-96.appspot.com/o/loginToContinue.jpg?alt=media&token=b8ed5b0c-dd7d-4596-ac84-078d0cb07825', 'https://firebasestorage.googleapis.com/v0/b/gallery-app-96.appspot.com/o/loginToContinue.jpg?alt=media&token=b8ed5b0c-dd7d-4596-ac84-078d0cb07825'
           ] //Default LoginToContinue images..
         })
         return
