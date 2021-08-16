@@ -185,7 +185,7 @@ const LoadingScreen = styled.div`
   height: 100vh;
   display: ${props => props.isLoading ? 'grid' : 'none'};
   place-items: center;
-  background-color: rgba(255, 255, 255, 0.75);
+  background-color: rgba(255, 255, 255, 0.5);
   & svg {
     transform: translateY(-100%);
     font-size: 3rem;
@@ -196,12 +196,15 @@ const LoadingScreen = styled.div`
 `
 
 const AddImageContainer = styled.div`
-  position: fixed;
-  bottom: 0;
-  right: 0;
+  --primary: #f04747;
+  --secondary: #f2f1af;
+  --tertiary: #30a041;
+
   width: 100%;
   padding: 1rem;
-  background-color: ${props => props.hideInput ? 'none' : '#d54a4a'};
+  position: fixed;
+  bottom: 0;
+  background-color: ${props => props.hideInput ? 'none' : 'var(--primary)'};
   color: white;
   
   & div {
@@ -209,17 +212,15 @@ const AddImageContainer = styled.div`
       opacity: 0;
     }
     & label {
-      font-size: 0.75rem;
-      padding: 0.2rem;
-      background-color: #f5f2be;
-      color: #d54a4a;
+      background-color: var(--secondary);
+      color: var(--primary);
       box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+      padding: 0 0.5rem;
       border-radius: 10px;
       display: block;
-      width: 35vw;
       text-align: center;
       position: absolute;
-      bottom: 0.75rem;
+      bottom: 1rem;
       left: 1rem;
       z-index: -1;
     }
@@ -227,6 +228,7 @@ const AddImageContainer = styled.div`
       padding: 0.2rem 0.5rem;
       border: none;
       border-radius: 10px;
+      background-color: var(--secondary);
     }
     & svg {
       transform: translateY(2px);
@@ -249,12 +251,12 @@ const AddImageContainer = styled.div`
     border: none;
     background-color: ${props => 
       props.hideInput
-      ? '#fff'
+      ? 'var(--primary)'
       : props.validInput
-      ? '#5ca153'
-      : '#d54a4a'
+      ? 'var(--tertiary)'
+      : 'var(--secondary)'
     };
-    color: ${props => props.hideInput ? '#d54a4a' : '#fff'};
+    color: ${props => props.hideInput ? 'var(--secondary)' : 'var(--primary)'};
     box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
     & svg {
       font-size: 1.25rem;
@@ -268,8 +270,8 @@ const AddImageContainer = styled.div`
 const ErrorsContainer = styled.div`
   display: ${props => props.valid ? 'block' : 'none'};
   padding: 0.2rem;
-  background-color: #dd3333;
-  color: #fff;
+  background-color: var(--primary);
+  color: var(--secondary);
   border-radius: 5%;
   margin: 0.5rem 0;
   & p {

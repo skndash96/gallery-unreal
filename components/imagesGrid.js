@@ -143,19 +143,19 @@ export default function images() {
     >
       {isMediumScreen()
         ? [
-            <ImagesCol width={"33vw"} key={3}>
+            <ImagesCol key={3}>
               {images.slice((2 * images.length) / 3).map((image) => {
                 return <ImageCard src={image} />;
               })}
             </ImagesCol>,
-            <ImagesCol width={"33vw"} key={2}>
+            <ImagesCol key={2}>
               {images
                 .slice(images.length / 3, (2 * images.length) / 3)
                 .map((image) => {
                   return <ImageCard src={image} />;
                 })}
             </ImagesCol>,
-            <ImagesCol width={"33vw"} key={1}>
+            <ImagesCol key={1}>
               {images.slice(0, images.length / 3).map((image) => {
                 return <ImageCard src={image} />;
               })}
@@ -183,7 +183,7 @@ const ImagesContainer = styled.div`
   min-height: 100vh;
   background-color: #111;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(33vw, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(30%, 1fr));
 `;
 const ImagesCol = styled.div`
   position: relative;
