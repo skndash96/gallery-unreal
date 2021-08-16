@@ -9,7 +9,9 @@ import { VscLoading } from 'react-icons/vsc'
 import ImagesGrid from '../components/imagesGrid'
 
 export default function Index() {
-  const [user, setUser] = useState(null)
+  const dispatch = useDispatch()
+  const {user} = useSelector(state => state)
+  
   const [images, setImages] = useState([])
   const [toAddImages, setToAddImages] = useState([])
   const [formIsActive, setFormIsActive] = useState(true)
@@ -28,10 +30,14 @@ export default function Index() {
   useEffect(() => {
     auth.onAuthStateChanged(user => {
       if (!user) {
-        setImages(['https://firebasestorage.googleapis.com/v0/b/gallery-app-96.appspot.com/o/CejU0o6NfzRKjoGhk4NaJwLXRhs2%2FloginToContinue.jpg?alt=media&token=41540630-437b-4080-9a74-e630803f26b3', 'https://firebasestorage.googleapis.com/v0/b/gallery-app-96.appspot.com/o/CejU0o6NfzRKjoGhk4NaJwLXRhs2%2FloginToContinue.jpg?alt=media&token=41540630-437b-4080-9a74-e630803f26b3']) //Default LoginToContinue images..
+        setImages(['https://firebasestorage.googleapis.com/v0/b/gallery-app-96.appspot.com/o/CejU0o6NfzRKjoGhk4NaJwLXRhs2%2FloginToContinue.jpg?alt=media&token=41540630-437b-4080-9a74-e630803f26b3', 'https://firebasestorage.googleapis.com/v0/b/gallery-app-96.appspot.com/o/CejU0o6NfzRKjoGhk4NaJwLXRhs2%2FloginToContinue.jpg?alt=media&token=41540630-437b-4080-9a74-e630803f26b3'
+        ]) //Default LoginToContinue images..
         return
       } else {
-        setUser(user)
+        dispatch({
+          type: 'LOG_IN',
+          payload: user
+        })
       }
       
       db.collection('users').doc(user.uid).get()
@@ -81,7 +87,9 @@ export default function Index() {
               bucket.ref().child(destination).getDownloadURL()
               .then(url => {
                 setUploadProgress(count => [(count[0]||0)+1, array.length])
+                
                 setImages(state => [...state, url])
+                
                 resolve()
               })
               .catch(error => {
@@ -104,7 +112,10 @@ export default function Index() {
 
     auth.signInWithPopup(provider)
     .then(({ user }) => {
-      setUser(user)
+      dispatch({
+        type: 'LOG_IN',
+        payload: user
+      })
     })
     .catch(error => {
       console.error(error)
@@ -236,6 +247,9 @@ const AddImageContainer = styled.div`
     box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
     & svg {
       font-size: 1.25rem;
+    }
+    &:hover {
+      box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5)
     }
   }
 `

@@ -12,6 +12,16 @@ export default (state, action) => {
         logged: false,
         user: null,
       }
+    case 'ADD_IMAGES':
+      return {
+        ...state,
+        images: [...state.images, ...action.payload]
+      }
+    case 'SET_IMAGES':
+      return {
+        ...state,
+        images: action.payload
+      }
     default:
       return state
   }

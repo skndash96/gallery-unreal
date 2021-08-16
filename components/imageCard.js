@@ -40,4 +40,11 @@ const Card = styled.div`
       font-size: 2rem;
     }
   }
+  .activeBin {
+    display: grid;
+  }
+  .redBin {
+    display: grid;
+    color: #f22;
+  }
 `

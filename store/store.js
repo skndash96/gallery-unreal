@@ -9,6 +9,7 @@ let store
 const initialState = {
   logged: false,
   user: null,
+  images: [],
 }
 
 function initStore(preloadedState = initialState) {
